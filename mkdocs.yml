@@ -1,0 +1,48 @@
+site_name: ETL - Apache Nifi
+copyright: 2023 Nicolas Souza
+repo_name: ETL-apache-nifi
+repo_url: https://github.com/nszchagas/ETL-apache-nifi
+
+theme:
+  name: material
+  logo: icon.png
+  features:
+    - content.code.annotate
+    - content.code.copy
+  favicon: icon.png
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue grey
+      toggle:
+        icon: material/brightness-7
+        name: Dark mode
+
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep purple
+      toggle:
+        icon: material/brightness-4
+        name: Light mode
+
+markdown_extensions:
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      base_path: ["codes"]
+  - pymdownx.superfences
+  - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+
+extra_javascript:
+  - js/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+nav:
+  - Processo ETL: index.md
