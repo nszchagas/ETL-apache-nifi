@@ -5,6 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: apache-nifi
+    restart: unless-stopped
     ports:
       - "8443:8443"
     volumes: 
