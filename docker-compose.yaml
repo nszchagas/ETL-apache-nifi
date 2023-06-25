@@ -5,15 +5,28 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: apache-nifi
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 3GB
     restart: unless-stopped
     ports:
       - "8443:8443"
     volumes: 
       - "./data:/opt/nifi/nifi-current/data-in"
       - "./scripts:/opt/nifi/nifi-current/scripts"
+      - nifi_database:/opt/nifi/nifi-current/nifi_database
+      - flow_storage:/opt/nifi/nifi-current/flow_storage
     networks:
       - mysql
       
+
+volumes:
+  nifi_database:
+    name: nifi_database
+  flow_storage:
+    name: nifi_flow_storage
 networks:
   mysql:
     external: true

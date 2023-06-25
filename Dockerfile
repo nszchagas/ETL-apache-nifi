@@ -1,6 +1,10 @@
 FROM apache/nifi 
 
-RUN apt update && apt install python3 -y
+USER root 
+
+RUN apt-get update && apt-get install python3 -y
+
+USER nifi
 
 WORKDIR /opt/nifi/nifi-current/
 
