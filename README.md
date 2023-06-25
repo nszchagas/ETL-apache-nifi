@@ -97,7 +97,7 @@ Clique no ícone de engrenagem para configurar o leitor e nas propriedades alter
 
 Para ativar o serviço, clique no ícone de raio e no botão "Enable" da tela que aparecer.
 
-Repita os passos anteriores para adicionar os serviços de leitura e escrita em JSON: **JsonRecordSetWriter** e **JsonTreeReader**. Não é necessário alterar nenhuma configuração, mas caso deseje uma saída mais bonita, habilite a configuração "Pretty Print JSON" no JsonRecordSetWriter.
+Repita os passos anteriores para adicionar os serviços de leitura e escrita em JSON: **JsonRecordSetWriter** e **JsonTreeReader**. Não é necessário alterar nenhuma configuração.
 
 Agora que os serviços de leitura e escrita estão criados e habilitados, é possível inseri-los na configuração do **SplitRecord**.
 
@@ -107,11 +107,98 @@ O processador SplitRecord tem 3 saídas possíveis, e é necessário direcioná-
 
 ![](./assets/0100.png)
 
-A saída splits será direcionada para o próximo processador.
+A saída splits será direcionada para o próximo processador, para o tratamento dos dados por meio de um script python, o **ExecuteScript**.
 
-Como esse processador realizará um grande número de tarefas, é possível criar threads para realizar o trabalho de forma concorrente. No exemplo serão utilizadas 5 threads.
+Configure o processador da seguinte maneira:
 
-![](./assets/0336.png)
+![](./assets/0750.png)
+
+Observe que a pasta [scripts](./scripts/) está em um bind com a pasta `/opt/nifi/nifi-current/scripts` do container, por meio da configuração do docker-compose. O script [cid10_format_json.py](./scripts/cid10_format_json.py) é responsável pelo seguinte processamento:
+
+```python
+from org.apache.commons.io import IOUtils
+from java.nio.charset import StandardCharsets
+from org.apache.nifi.processor.io import StreamCallback
+import json
+
+# Essa classe herda a classe StreamCallback, do apache/nifi.
+
+
+class PyStreamCallback(StreamCallback):
+    def __init__(self):
+        pass
+
+    def process(self, inputStream, outputStream):
+        # O conteúdo do arquivo (FlowFile) é lido do inputStream e decodificado em utf-8.
+        text = IOUtils.toString(inputStream, StandardCharsets.UTF_8)
+
+        # O conteúdo textual é decodificado como json, por meio do pacote json do python.
+        json_content = json.JSONDecoder().decode(text)
+
+        # Um objeto cid é inicializado, e nele serão inseridas apenas as propriedades necessárias.
+        cid = {}
+
+        cid['codigo'] = json_content['CAT']
+        cid['descricao'] = json_content['DESCRICAO']
+
+        # O conteúdo é serializado para JSON.
+        content = json.dumps(cid)
+
+        # E por fim, o conteúdo é escrito novamente no arquivo, fazendo a sobrescrita.
+        outputStream.write(bytearray(content.encode('utf-8')))
+
+
+flowFile = session.get()
+if (flowFile != None):
+    # Se houver flowFile, faz a escrita nela, utilizando a classe criada anteriormente como CallBack dessa função.
+    flowFile = session.write(flowFile, PyStreamCallback())
+
+# O arquivo é transferido para a próxima etapa, com o status de sucesso.
+session.transfer(flowFile, REL_SUCCESS)
+
+```
+
+Após o processamento, cada arquivo encontra-se no seguinte estado, estando pronto para a inserção na base de dados.
+
+![](./assets/1429.png)
+
+O processador responsável pela conversão de JSON para SQL é o **ConvertJSONtoSQL**, como o próprio nome sugere, que necessita de uma **JDBC Connection Pool** para funcionar, portanto é necessário criá-la junto com os serviços de leitura e escrito criados anteriormente.
+
+![](./assets/2352.png)
+
+> A senha para o usuário apache também deve ser inserida, não aparecendo na imagem por ser um dado sensível.
+> O usuário apache também deve ser criado no banco de dados, caso não existe, e ter acesso aos objetos da base `sim_datasus`.
+
+Uma vez criada a _pool_ de conexões, basta configurar o processador da seguinte maneira:
+![](./assets/1718.png)
+
+#### Load
+
+Por fim, a inserção dos dados é feita com auxílio do processador **ExecuteSQL**, que irá executar os arquivos sql gerados pelo processador anterior. Basta configurar a _connection pool_ e os _relationships_ como terminais.
+
+![](./assets/3317.png)
+
+Quantidade de tuplas antes da inserção:
+
+![](./assets/3257.png)
+
+Após a inserção:
+
+![](./assets/3503.png)
+
+![](./assets/3517.png)
+
+#### Overview
+
+Fluxo completo:
+
+![](./assets/3719.png)
+
+### Fluxo para os dados de Mortalidade do SIM
+
+O processador utilizado será responsável por fazer a requisição para o site que hospeda os arquivos CSV com os dados do SIM, sistema de informações sobre mortalidade, do SUS.
+
+O nome deste processador é **InvokeHTTP**, e nas suas configurações basta alterar a HTTP URL para o link da fonte de dados: <https://diaad.s3.sa-east-1.amazonaws.com/sim/Mortalidade_Geral_2020.csv>
 
 ## Referências
 
