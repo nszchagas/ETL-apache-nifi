@@ -12,7 +12,7 @@ docker compose up -d
 
 Os dados utilizados no exemplo vêm de duas fontes:
 
-- [Arquivo de dados sobre os CIDs](./data/CID-10-GRUPOS.CSV) [1], disponível na pasta [data](./data/)
+- Arquivo de dados sobre os CIDs [1], disponível na pasta data, da raiz do repositório.
 - [Dados sobre a mortalidade, em 2020](https://diaad.s3.sa-east-1.amazonaws.com/sim/Mortalidade_Geral_2020.csv) [2]
 
 ### Fluxo para os dados de CID
@@ -25,11 +25,11 @@ Para o arquivo, utilizamos o processador **GetFile** do Apache Nifi, com a segui
 
 - O Input Directory contém o caminho relativo a pasta `/opt/nifi/nifi-current/data-in` do container, observe que a
   pasta `data-in`  está em um _bind_ com a pasta local: [data](./data), por meio da configuração
-  no [docker-compose](docker-compose.yaml):
+  no `docker-compose`:
 
 ```yaml
 volumes:
-  - "./data:/opt/nifi/nifi-current/data-in" 
+  - "./data:/opt/nifi/nifi-current/data-in"  
 ```
 
 > O filtro por nome foi inserido para que o processador não recupere outros arquivos da pasta. Durante o período de testes recomenda-se utilizar a propriedade "Keep Source File" como `true`, para que o arquivo original não seja deletado após o processamento.
@@ -81,11 +81,11 @@ O processador **SplitRecord** contém a primeira etapa da transformação dos da
 para isso ele utilizará dois serviços, um de leitura CSV e outro de escrita JSON. Esses serviços devem ser configurados
 de forma global para o fluxo, para isso clique em um espaço vazio do fluxo e selecione a opção **Configure**.
 
-![](./assets/5036.png)
+![](assets/5036.png)
 
 Na aba **controller services** selecione a opção para adicionar um novo serviço, e busque por **CSVReader**.
 
-![](./assets/5230.png)
+![](assets/5230.png)
 
 Clique no ícone de engrenagem para configurar o leitor e nas propriedades altere as seguintes configurações:
 
@@ -101,98 +101,61 @@ Repita os passos anteriores para adicionar os serviços de leitura e escrita em 
 
 Agora que os serviços de leitura e escrita estão criados e habilitados, é possível inseri-los na configuração do **SplitRecord**.
 
-![](./assets/0001.png)
+![](assets/0001.png)
 
 O processador SplitRecord tem 3 saídas possíveis, e é necessário direcioná-las ou configurá-las como finais, na aba relationships.
 
-![](./assets/0100.png)
+![](assets/0100.png)
 
 A saída splits será direcionada para o próximo processador, para o tratamento dos dados por meio de um script python, o **ExecuteScript**.
 
 Configure o processador da seguinte maneira:
 
-![](./assets/0750.png)
+![](assets/0750.png)
 
-Observe que a pasta [scripts](./scripts/) está em um bind com a pasta `/opt/nifi/nifi-current/scripts` do container, por meio da configuração do docker-compose. O script [cid10_format_json.py](./scripts/cid10_format_json.py) é responsável pelo seguinte processamento:
+Observe que a pasta [scripts](../scripts/) está em um bind com a pasta `/opt/nifi/nifi-current/scripts` do container, por meio da configuração do docker-compose. O script `cid10_format_json.py` é responsável pelo seguinte processamento:
 
-```python
-from org.apache.commons.io import IOUtils
-from java.nio.charset import StandardCharsets
-from org.apache.nifi.processor.io import StreamCallback
-import json
-
-# Essa classe herda a classe StreamCallback, do apache/nifi.
-
-
-class PyStreamCallback(StreamCallback):
-    def __init__(self):
-        pass
-
-    def process(self, inputStream, outputStream):
-        # O conteúdo do arquivo (FlowFile) é lido do inputStream e decodificado em utf-8.
-        text = IOUtils.toString(inputStream, StandardCharsets.UTF_8)
-
-        # O conteúdo textual é decodificado como json, por meio do pacote json do python.
-        json_content = json.JSONDecoder().decode(text)
-
-        # Um objeto cid é inicializado, e nele serão inseridas apenas as propriedades necessárias.
-        cid = {}
-
-        cid['codigo'] = json_content['CAT']
-        cid['descricao'] = json_content['DESCRICAO']
-
-        # O conteúdo é serializado para JSON.
-        content = json.dumps(cid)
-
-        # E por fim, o conteúdo é escrito novamente no arquivo, fazendo a sobrescrita.
-        outputStream.write(bytearray(content.encode('utf-8')))
-
-
-flowFile = session.get()
-if (flowFile != None):
-    # Se houver flowFile, faz a escrita nela, utilizando a classe criada anteriormente como CallBack dessa função.
-    flowFile = session.write(flowFile, PyStreamCallback())
-
-# O arquivo é transferido para a próxima etapa, com o status de sucesso.
-session.transfer(flowFile, REL_SUCCESS)
-
+```python title="format_json.python" linenums="1"
+--8<--
+cid10_format_json.py
+--8<--
 ```
 
 Após o processamento, cada arquivo encontra-se no seguinte estado, estando pronto para a inserção na base de dados.
 
-![](./assets/1429.png)
+![](assets/1429.png)
 
 O processador responsável pela conversão de JSON para SQL é o **ConvertJSONtoSQL**, como o próprio nome sugere, que necessita de uma **JDBC Connection Pool** para funcionar, portanto é necessário criá-la junto com os serviços de leitura e escrito criados anteriormente.
 
-![](./assets/2352.png)
+![](assets/2352.png)
 
 > A senha para o usuário apache também deve ser inserida, não aparecendo na imagem por ser um dado sensível.
 > O usuário apache também deve ser criado no banco de dados, caso não existe, e ter acesso aos objetos da base `sim_datasus`.
 
 Uma vez criada a _pool_ de conexões, basta configurar o processador da seguinte maneira:
-![](./assets/1718.png)
+![](assets/1718.png)
 
 #### Load
 
 Por fim, a inserção dos dados é feita com auxílio do processador **ExecuteSQL**, que irá executar os arquivos sql gerados pelo processador anterior. Basta configurar a _connection pool_ e os _relationships_ como terminais.
 
-![](./assets/3317.png)
+![](assets/3317.png)
 
 Quantidade de tuplas antes da inserção:
 
-![](./assets/3257.png)
+![](assets/3257.png)
 
 Após a inserção:
 
-![](./assets/3503.png)
+![](assets/3503.png)
 
-![](./assets/3517.png)
+![](assets/3517.png)
 
 #### Overview
 
 Fluxo completo:
 
-![](./assets/3719.png)
+![](assets/3719.png)
 
 ### Fluxo para os dados de Mortalidade do SIM
 
