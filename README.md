@@ -83,6 +83,36 @@ de forma global para o fluxo, para isso clique em um espaço vazio do fluxo e se
 
 ![](./assets/5036.png)
 
+Na aba **controller services** selecione a opção para adicionar um novo serviço, e busque por **CSVReader**.
+
+![](./assets/5230.png)
+
+Clique no ícone de engrenagem para configurar o leitor e nas propriedades altere as seguintes configurações:
+
+| Configuração               | Valor                          | Descrição                                                    |
+| -------------------------- | ------------------------------ | ------------------------------------------------------------ |
+| Schema Access Strategy     | Use Strings Fields From Header | Determina como os nomes das propriedades serão determinados. |
+| Value Separator            | ;                              | Separador de registros, no caso do arquivo usado é ';'.      |
+| Treat First Line as Header | true                           | Auto explicativo.                                            |
+
+Para ativar o serviço, clique no ícone de raio e no botão "Enable" da tela que aparecer.
+
+Repita os passos anteriores para adicionar os serviços de leitura e escrita em JSON: **JsonRecordSetWriter** e **JsonTreeReader**. Não é necessário alterar nenhuma configuração, mas caso deseje uma saída mais bonita, habilite a configuração "Pretty Print JSON" no JsonRecordSetWriter.
+
+Agora que os serviços de leitura e escrita estão criados e habilitados, é possível inseri-los na configuração do **SplitRecord**.
+
+![](./assets/0001.png)
+
+O processador SplitRecord tem 3 saídas possíveis, e é necessário direcioná-las ou configurá-las como finais, na aba relationships.
+
+![](./assets/0100.png)
+
+A saída splits será direcionada para o próximo processador.
+
+Como esse processador realizará um grande número de tarefas, é possível criar threads para realizar o trabalho de forma concorrente. No exemplo serão utilizadas 5 threads.
+
+![](./assets/0336.png)
+
 ## Referências
 
 [1] Arquivos em Formato CSV - CID-10, disponível em <http://www2.datasus.gov.br/cid10/V2008/descrcsv.htm>. Acesso em 12
@@ -92,3 +122,5 @@ de junho de 2023.
 em 12 de junho de 2023.
 
 [3] Exemplo de Script Jython, disponível em <https://gist.github.com/ijokarumawak/1df6d34cd1b2861eb6b7432ee7245ccd>
+
+[4] <https://www.youtube.com/watch?v=cHElJ8M5g0Y&ab_channel=InsightByte>
