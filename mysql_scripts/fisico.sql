@@ -1,0 +1,35 @@
+CREATE DATABASE IF NOT EXISTS sim_datasus;
+
+
+USE sim_datasus;
+
+
+CREATE TABLE cid_10 (
+    codigo VARCHAR(10) NOT NULL PRIMARY KEY,
+    descricao VARCHAR(100) NOT NULL
+);
+
+
+CREATE TABLE METADADOS_SISTEMA (
+    idMetadados BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    idObito VARCHAR(8) NOT NULL UNIQUE,
+    -- CONTADOR ou CONTADOR.1 
+    origemDados ENUM (
+        'ORACLE',
+        'BANCO ESTADUAL',
+        'BANCO SEADE',
+        'IGNORADO'
+    ) NOT NULL DEFAULT 'IGNORADO',
+    -- ORIGEM 
+    formCodificado BOOLEAN NOT NULL DEFAULT FALSE,
+    -- CODIFICADO
+    versaoSistema VARCHAR(10) -- VERSAOSIST 
+) ENGINE = InnoDB AUTO_INCREMENT = 1;
+
+
+CREATE TABLE OBITO_DADOS (
+    idObitoDados BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    idObito varchar(8) NOT NULL UNIQUE,
+    isAcidenteDeTrabalho boolean NOT NULL DEFAULT FALSE,
+    -- ACIDTRAB
+);

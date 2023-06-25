@@ -11,13 +11,16 @@ class PyStreamCallback(StreamCallback):
         pass
 
     def process(self, inputStream, outputStream):
-        # O conteúdo do arquivo (FlowFile) é lido do inputStream e decodificado em utf-8.
+        # O conteúdo do arquivo (FlowFile) é lido do inputStream e
+        # decodificado em utf-8.
         text = IOUtils.toString(inputStream, StandardCharsets.UTF_8)
 
-        # O conteúdo textual é decodificado como json, por meio do pacote json do python.
+        # O conteúdo textual é decodificado como json, por meio do
+        # pacote json do python.
         json_content = json.JSONDecoder().decode(text)
 
-        # Um objeto cid é inicializado, e nele serão inseridas apenas as propriedades necessárias.
+        # Um objeto cid é inicializado, e nele serão inseridas apenas
+        # as propriedades necessárias.
         cid = {}
 
         cid['codigo'] = json_content['CAT']
@@ -26,13 +29,15 @@ class PyStreamCallback(StreamCallback):
         # O conteúdo é serializado para JSON.
         content = json.dumps(cid)
 
-        # E por fim, o conteúdo é escrito novamente no arquivo, fazendo a sobrescrita.
+        # E por fim, o conteúdo é escrito novamente no arquivo,
+        # fazendo a sobrescrita.
         outputStream.write(bytearray(content.encode('utf-8')))
 
 
 flowFile = session.get()
 if (flowFile != None):
-    # Se houver flowFile, faz a escrita nela, utilizando a classe criada anteriormente como CallBack dessa função.
+    # Se houver flowFile, faz a escrita nela, utilizando a classe criada
+    # anteriormente como CallBack dessa função.
     flowFile = session.write(flowFile, PyStreamCallback())
 
 # O arquivo é transferido para a próxima etapa, com o status de sucesso.
