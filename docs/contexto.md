@@ -61,7 +61,7 @@ A base de dados que passará pelo processo de ETL durante a execução do trabal
 
 A base de dados está disponível no sítio [OpenDataSUS](https://opendatasus.saude.gov.br/dataset/sim) no [formato CSV](https://opendatasus.saude.gov.br/dataset/sim/resource/9ade641a-1f25-40d9-b55b-cff7096eb5b4) (_Comma separated values_) além de sua documentação no formato de [dicionário de dados](https://opendatasus.saude.gov.br/dataset/sim/resource/b894426e-83dc-4703-91f8-fe90d9b7f8f0). Após uma análise da documentação da base de dados, é possível concluir que os dados disponibilizados são provenientes de fontes diferentes (Figura \ref{origem-dd})
 
-![](./assets/documentacao/1155.png)
+![](./assets/1155.png)
 
 Figura 2: Documentação da coluna "ORIGEM" da tabela. Fonte: [3]
 

@@ -1,13 +1,5 @@
 # Apache Nifi
 
-## Construindo e Rodando
-
-Para construir a imagem personalizada do apache nifi, com driver para conexão jdbc com o MySQL e usuário:
-
-```shell
-docker compose up -d
-```
-
 ## Construindo o Fluxo
 
 Os dados utilizados no exemplo vêm de duas fontes:

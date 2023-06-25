@@ -29,10 +29,11 @@ markdown_extensions:
       anchor_linenums: true
   - pymdownx.inlinehilite
   - pymdownx.snippets:
-      base_path: ["scripts"]
+      base_path: ["scripts", ".", "mysql_scripts"]
   - pymdownx.superfences
   - attr_list
 
 nav:
   - Contextualização: contexto.md
+  - Configuração: setup.md
   - Processo ETL: index.md

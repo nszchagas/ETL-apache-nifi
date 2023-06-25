@@ -1,0 +1,4 @@
+USE sim_datasus;
+
+DROP TABLE METADADOS_SISTEMA;
+
