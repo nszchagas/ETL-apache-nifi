@@ -36,4 +36,6 @@ markdown_extensions:
 nav:
   - Contextualização: contexto.md
   - Configuração: setup.md
-  - Processo ETL: index.md
+  - Processo ETL: 
+    - Dados CID: index.md
+    - Dados sobre Mortalidade (SIM): mortalidade.md

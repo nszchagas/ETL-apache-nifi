@@ -149,12 +149,6 @@ Fluxo completo:
 
 ![](assets/3719.png)
 
-### Fluxo para os dados de Mortalidade do SIM
-
-O processador utilizado será responsável por fazer a requisição para o site que hospeda os arquivos CSV com os dados do SIM, sistema de informações sobre mortalidade, do SUS.
-
-O nome deste processador é **InvokeHTTP**, e nas suas configurações basta alterar a HTTP URL para o link da fonte de dados: <https://diaad.s3.sa-east-1.amazonaws.com/sim/Mortalidade_Geral_2020.csv>
-
 ## Referências
 
 [1] Arquivos em Formato CSV - CID-10, disponível em <http://www2.datasus.gov.br/cid10/V2008/descrcsv.htm>. Acesso em 12
