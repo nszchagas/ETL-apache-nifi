@@ -30,17 +30,19 @@ CREATE TABLE IF NOT EXISTS metadados_sistema (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1;
 
 -- --8<-- [end:metadados]
-CREATE TABLE IF NOT EXISTS INVESTIGACAO (
+-- --8<-- [start:investigacao]
+CREATE TABLE IF NOT EXISTS investigacao (
     idInvestigacao BIGINT PRIMARY KEY AUTO_INCREMENT,
-    DTINVESTIG DATE,
-    FONTEINV ENUM ('1', '2', '3', '4', '5', '6', '7', '8', '9'),
-    DTCADINV DATE,
-    DTCONINV DATE,
-    TPNIVELINV ENUM ('E', 'R', 'M'),
-    TPRESGINFO ENUM ('1', '2', '3')
+    idOBito VARCHAR(8) NOT NULL UNIQUE,
+    fonteInvestigacao ENUM( 'ComiteDeMorteMaternaOuInfantil' , 'VisitaDomiciliar' , 'Prontuario' , 'RelacionadoComOutrosBancosDeDados' , 'SVO' , 'IML' , 'OutraFonte' , 'MultiplasFontes' , 'Ignorado'),
+    dtInicio DATE,
+    dtcadastro   DATE,
+    dtConclusao   DATE,
+    nivelInvestigador ENUM('ESTADUAL', 'REGIONAL', 'MUNICIPAL'),
+    tipoResgateInformacao ENUM( 'NAO_ACRESCENTOU','SIM_NOVAS_INFORMACOES','SIM_CORRECAO_CAUSAS')
 ) ENGINE = InnoDB AUTO_INCREMENT = 1;
+-- --8 < -- [end:investigacao]
 
--- --8 < -- [end:mortalidade]
 CREATE TABLE IF NOT EXISTS OBITO (
     idObito BIGINT PRIMARY KEY,
     TIPOBITO ENUM ('1', '2'),
