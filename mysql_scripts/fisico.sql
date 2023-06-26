@@ -43,6 +43,28 @@ CREATE TABLE IF NOT EXISTS investigacao (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1;
 -- --8 < -- [end:investigacao]
 
+-- --8 <-- [start: pessoa_falecida]
+CREATE TABLE IF NOT EXISTS pessoa_falecida (
+    idPessoaFalecida BIGINT PRIMARY KEY AUTO_INCREMENT,
+    naturalidade INT,
+    codMunResidencia INT,
+    codMunNaturalidade INT,
+    dtNascimento DATETIME,
+    sexo VARCHAR(10),
+    etnia ENUM ('BRANCA','PRETA','AMARELA','PARDA','INDIGENA'),
+    estadoCivil ENUM ('SOLTEIRO', 'CASADO','VIUVO','SEPARADO','UNIAO_CONSENSUAL','IGNORADO'),
+    escolaridade ENUM ('NENHUMA', 'DE_1_A_3_ANOS', 'DE_4_A_7_ANOS', 'DE_8_A_11_ANOS', '12_ANOS_E_MAIS', 'IGNORADO'),
+    codOcupacao INT,
+    qtdFilhosVivos INT NOT NULL DEFAULT 0,
+    qtdFilhosMortos INT NOT NULL DEFAULT 0,
+    tipoGravidez ENUM ('1', '2', '3', '9'),
+    semanasGestacao INT,
+    tipoParto ENUM ('1', '2', '9'),
+    pesoEmGramas INT,
+    numeroLote BIGINT
+) ENGINE InnoDB AUTO_INCREMENT = 1;
+-- --8 < -- [end: pessoa_falecida]
+
 CREATE TABLE IF NOT EXISTS OBITO (
     idObito BIGINT PRIMARY KEY,
     TIPOBITO ENUM ('1', '2'),
@@ -90,63 +112,4 @@ CREATE TABLE IF NOT EXISTS OBITO (
     TPPOS BOOLEAN NOT NULL,
     TP_ALTERA INT,
     CB_ALT VARCHAR(10)
-);
-
-CREATE TABLE IF NOT EXISTS PESSOA_FALECIDA (
-    idPessoaFalecida BIGINT PRIMARY KEY,
-    `NATURAL` INT,
-    CODMUNRES INT,
-    CODMUNNATU INT,
-    DTNASC DATETIME,
-    IDADE VARCHAR(10),
-    SEXO VARCHAR(10),
-    RACACOR VARCHAR(10),
-    ESTCIV ENUM ('1', '2', '3', '4', '5', '9'),
-    ESC ENUM ('1', '2', '3', '4', '5', '9'),
-    ESC2010 ENUM ('1', '2', '3', '4', '5', '9'),
-    SERIESCFAL ENUM ('1', '2', '3', '4', '5', '6', '7', '8'),
-    OCUP INT,
-    IDADEMAE INT,
-    ESCMAE ENUM ('1', '2', '3', '4', '5', '9'),
-    ESCMAE2010 ENUM ('1', '2', '3', '4', '5', '9'),
-    SERIESCMAE INT,
-    OCUPMAE INT,
-    QTDFILVIVO INT,
-    QTDFILMORT INT,
-    GRAVIDEZ ENUM ('1', '2', '3', '9'),
-    SEMAGESTAC INT,
-    GESTACAO ENUM ('1', '2', '3', '4', '5', '6'),
-    PARTO ENUM ('1', '2', '9'),
-    PESO INT,
-    ESCMAEAGR1 ENUM (
-        '00',
-        '1',
-        '2',
-        '3',
-        '4',
-        '5',
-        '6',
-        '7',
-        '8',
-        '9',
-        '10',
-        '11',
-        '12'
-    ),
-    ESCFALAGR1 ENUM (
-        '00',
-        '1',
-        '2',
-        '3',
-        '4',
-        '5',
-        '6',
-        '7',
-        '8',
-        '9',
-        '10',
-        '11',
-        '12'
-    ),
-    NUMEROLOTE BIGINT
 );
