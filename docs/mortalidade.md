@@ -28,8 +28,62 @@ fisico.sql:metadados
 
 O script responsável por fazer esse tratamento é:
 
-```python title="format_metadados.python" linenums="1"
+```python title="format_metadados.py" linenums="1"
 --8<--
 sim_format_metadados.py
+--8<--
+```
+
+##### Investigação
+
+O mesmo vale para os dados de investigação.
+
+```sql title="fisico.sql" linenums="1"
+--8<--
+fisico.sql:investigacao
+--8<--
+```
+
+O script responsável por fazer esse tratamento é:
+
+```python title="sim_format_investigacao.py" linenums="1"
+--8<--
+sim_format_investigacao.py
+--8<--
+```
+
+##### Pessoa Falecida
+
+O mesmo vale para os dados de pessoa falecida.
+
+```sql title="fisico.sql" linenums="1"
+--8<--
+fisico.sql:pessoa_falecida
+--8<--
+```
+
+O script responsável por fazer esse tratamento é:
+
+```python title="sim_format_dados_pessoa_falecida.py" linenums="1"
+--8<--
+sim_format_dados_pessoa_falecida.py
+--8<--
+```
+
+##### Óbito
+
+O mesmo vale para os dados de óbito.
+
+```sql title="fisico.sql" linenums="1"
+--8<--
+fisico.sql:obito
+--8<--
+```
+
+O script responsável por fazer esse tratamento é:
+
+```python title="sim_format_obito.py" linenums="1"
+--8<--
+sim_format_obito.py
 --8<--
 ```

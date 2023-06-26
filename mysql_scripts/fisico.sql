@@ -2,7 +2,7 @@ CREATE DATABASE IF NOT EXISTS sim_datasus;
 
 USE sim_datasus;
 
--- --8 < -- [start:cid]
+-- --8<-- [start:cid]
 CREATE TABLE IF NOT EXISTS cid_10 (
     codigo VARCHAR(10) NOT NULL PRIMARY KEY,
     descricao VARCHAR(100) NOT NULL
@@ -41,9 +41,9 @@ CREATE TABLE IF NOT EXISTS investigacao (
     nivelInvestigador ENUM('ESTADUAL', 'REGIONAL', 'MUNICIPAL'),
     tipoResgateInformacao ENUM( 'NAO_ACRESCENTOU','SIM_NOVAS_INFORMACOES','SIM_CORRECAO_CAUSAS')
 ) ENGINE = InnoDB AUTO_INCREMENT = 1;
--- --8 < -- [end:investigacao]
+-- --8<-- [end:investigacao]
 
--- --8 <-- [start: pessoa_falecida]
+-- --8<-- [start: pessoa_falecida]
 CREATE TABLE IF NOT EXISTS pessoa_falecida (
     idPessoaFalecida BIGINT PRIMARY KEY AUTO_INCREMENT,
     naturalidade INT,
@@ -63,8 +63,8 @@ CREATE TABLE IF NOT EXISTS pessoa_falecida (
     pesoEmGramas INT,
     numeroLote BIGINT
 ) ENGINE InnoDB AUTO_INCREMENT = 1;
--- --8 < -- [end: pessoa_falecida]
--- --8 < -- [start: obito]
+-- --8<-- [end: pessoa_falecida]
+-- --8<-- [start: obito]
 CREATE TABLE IF NOT EXISTS obito (
     idObito BIGINT PRIMARY KEY,
     isObitoFetal BOOLEAN,
@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS obito (
     cids VARCHAR(100)
     
 );
--- --8 < -- [end: obito]
+-- --8<-- [end: obito]
 
 /* 
     OBITOGRAV BOOLEAN,
