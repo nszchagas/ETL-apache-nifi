@@ -9,29 +9,28 @@ import json
 # um ENUM correspondente.
 
 
-def format_origem(cod: str) -> str:
-
-    origens = {
-        1: 'ORACLE',
-        2: 'BANCO ESTADUAL',
-        3: 'BANCO SEADE',
-        9: 'IGNORADO'
-    }
-
-    if cod == "":
-        return 'IGNORADO'
-    try:
-        origem = origens[int(cod)]
-    except Exception as e:
-        origem = cod
-        print(e)
-
-    return origem
-
-
 class PyStreamCallback(StreamCallback):
     def __init__(self):
         pass
+
+    def formatorigem(self, cod):
+
+        origens = {
+            1: 'ORACLE',
+            2: 'BANCO ESTADUAL',
+            3: 'BANCO SEADE',
+            9: 'IGNORADO'
+        }
+
+        if cod == "":
+            return 'IGNORADO'
+        try:
+            origem = origens[int(cod)]
+        except Exception as e:
+            origem = cod
+            print(e)
+
+        return origem
 
     def process(self, inputStream, outputStream):
         # O conteúdo do arquivo (FlowFile) é lido do inputStream e
@@ -44,7 +43,7 @@ class PyStreamCallback(StreamCallback):
         # as propriedades necessárias.
         metadados = {}
         metadados['idObito'] = json_content['CONTADOR']
-        metadados['origemDados'] = format_origem(json_content['ORIGEM'])
+        metadados['origemDados'] = self.formatorigem(json_content['ORIGEM'])
         metadados['formCodificado'] = (json_content['CODIFICADO'] == 'S')
         metadados['versaoSistema'] = json_content['VERSAOSIST']
         # O conteúdo é serializado para JSON.
