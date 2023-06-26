@@ -64,13 +64,26 @@ CREATE TABLE IF NOT EXISTS pessoa_falecida (
     numeroLote BIGINT
 ) ENGINE InnoDB AUTO_INCREMENT = 1;
 -- --8 < -- [end: pessoa_falecida]
-
-CREATE TABLE IF NOT EXISTS OBITO (
+-- --8 < -- [start: obito]
+CREATE TABLE IF NOT EXISTS obito (
     idObito BIGINT PRIMARY KEY,
-    TIPOBITO ENUM ('1', '2'),
-    DTOBITO DATE,
-    HORAOBITO TIMESTAMP,
-    OBITOPARTO ENUM ('1', '2', '3', '9'),
+    isObitoFetal BOOLEAN,
+    houveAlteracaoCausa BOOLEAN,
+    dataHora DATETIME,
+    diagnosticoLinhaA VARCHAR(20),
+    diagnosticoLinhaB VARCHAR(20),
+    diagnosticoLinhaC VARCHAR(20),
+    diagnosticoLinhaD VARCHAR(20),
+    diagnosticoLinhaII VARCHAR(40),
+    causaBasica VARCHAR(10),
+    obitoEmRelacaoAoParto VARCHAR(100),
+    crmAtestante VARCHAR(10),
+    cids VARCHAR(100)
+    
+);
+-- --8 < -- [end: obito]
+
+/* 
     OBITOGRAV BOOLEAN,
     OBITOPUERP ENUM ('1', '2', '3', '9'),
     CIRCOBITO ENUM ('1', '2', '3', '4', '9'),
@@ -83,22 +96,20 @@ CREATE TABLE IF NOT EXISTS OBITO (
     EXAME BOOLEAN,
     CIRURGIA BOOLEAN,
     NECROPSIA BOOLEAN,
-    LINHAA VARCHAR(20),
-    LINHAB VARCHAR(20),
-    LINHAC VARCHAR(20),
-    LINHAD VARCHAR(20),
-    LINHAII VARCHAR(40),
-    CAUSABAS VARCHAR(10),
+    
+    
+    
+    DTRECEBIM DATETIME,
+    
     CB_PRE VARCHAR(10),
     COMUNSVOIM INT,
     DTATESTADO DATETIME,
     ACIDTRAB BOOLEAN NOT NULL,
     FONTE ENUM ('1', '2', '3', '4', '9'),
-    ALTCAUSA BOOLEAN,
     DTCADASTRO DATETIME,
-    ATESTANTE VARCHAR(10),
-    DTRECEBIM DATETIME,
-    ATESTADO VARCHAR(100),
+    
+    
+    
     DTRECORIGA DATETIME,
     CAUSAMAT VARCHAR(10),
     STDOEPIDEM BOOLEAN NOT NULL,
@@ -111,5 +122,4 @@ CREATE TABLE IF NOT EXISTS OBITO (
     CAUSABAS_O VARCHAR(10),
     TPPOS BOOLEAN NOT NULL,
     TP_ALTERA INT,
-    CB_ALT VARCHAR(10)
-);
+    CB_ALT VARCHAR(10) */
