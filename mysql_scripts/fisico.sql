@@ -2,39 +2,39 @@ CREATE DATABASE IF NOT EXISTS sim_datasus;
 
 USE sim_datasus;
 
--- --8<-- [start:cid]
 CREATE TABLE CID10
 (
     codigo    VARCHAR(10)  NOT NULL,
-    descricao VARCHAR(100) NOT NULL,
+    descricao VARCHAR(255) NOT NULL,
     CONSTRAINT cid10_pk PRIMARY KEY (codigo)
 ) ENGINE = InnoDB;
 
--- --8<-- [end:cid]
--- --8<-- [start:metadados]
 
-CREATE TABLE METADADOS_SISTEMA
+CREATE TABLE OBITO
 (
+    -- Campo CONTADOR ou CONTADOR.1 nos dados originais
+    idObito               BIGINT      NOT NULL,
+    causaBasica           VARCHAR(10) NOT NULL,
+    dataHora              TIMESTAMP   NOT NULL,
+    circunstancia         ENUM ('ACIDENTE',
+        'SUICIDIO',
+        'HOMICIO',
+        'OUTROS',
+        'IGNORADO')                   NOT NULL DEFAULT 'IGNORADO',
+    isObitoFetal          BOOLEAN     NOT NULL DEFAULT FALSE,
+    houveAlteracaoCausa   BOOLEAN     NOT NULL DEFAULT FALSE,
+    obitoEmRelacaoAoParto ENUM ('ANTES',
+        'DURANTE',
+        'DEPOIS',
+        'IGNORADO' )                  NOT NULL DEFAULT 'IGNORADO',
+    crmAtestante          VARCHAR(10),
+    CONSTRAINT obito_pf PRIMARY KEY (idObito),
+    CONSTRAINT obito_cid10_fk FOREIGN KEY (causaBasica) REFERENCES CID10 (codigo)
 
-    idMetadados    BIGINT  NOT NULL AUTO_INCREMENT,
-    idObito        BIGINT  NOT NULL,
-    -- Campo ORIGEM nos dados originais
-    origemDados    ENUM ('ORACLE',
-        'BANCO_ESTADUAL',
-        'BANCO_SEADE',
-        'IGNORADO' )       NOT NULL DEFAULT 'IGNORADO',
-    -- Campo CODIFICADO nos dados originais
-    formCodificado BOOLEAN NOT NULL DEFAULT FALSE,
-    -- Campo VERSAOSIST nos dados originais
-    versaoSistema  VARCHAR(10),
-    CONSTRAINT metadados_sistema_pk PRIMARY KEY (idMetadados),
-    CONSTRAINT metadados_sistema__obito_fk FOREIGN KEY (idObito) REFERENCES OBITO (idObito),
-    CONSTRAINT metadados_sistema__obito_uk UNIQUE (idObito)
-) ENGINE = InnoDB
-  AUTO_INCREMENT = 1;
+) ENGINE = InnoDB;
 
--- --8<-- [end:metadados]
--- --8<-- [start:investigacao]
+
+
 CREATE TABLE INVESTIGACAO
 (
     idInvestigacao        BIGINT NOT NULL AUTO_INCREMENT,
@@ -52,7 +52,7 @@ CREATE TABLE INVESTIGACAO
         'SIM_NOVAS_INFOS',
         'SIM_CORRECAO')          NOT NULL DEFAULT 'NAO_ACRESCENTOU',
     dtInicio              DATE,
-    dtcadastro            DATE,
+    dtCadastro            DATE,
     dtConclusao           DATE,
     nivelInvestigador     ENUM ('ESTADUAL',
         'REGIONAL',
@@ -62,17 +62,15 @@ CREATE TABLE INVESTIGACAO
     CONSTRAINT investigacao_sistema__obito_uk UNIQUE (idObito)
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 1;
--- --8<-- [end:investigacao]
 
--- --8<-- [start: pessoa_falecida]
+
+
 CREATE TABLE PESSOA_FALECIDA
 (
-    idPessoaFalecida   BIGINT PRIMARY KEY AUTO_INCREMENT,
+    idPessoaFalecida   BIGINT AUTO_INCREMENT,
     idObito            BIGINT NOT NULL,
-    naturalidade       INT,
-    codMunResidencia   INT,
-    codMunNaturalidade INT,
-    dtNascimento       DATE,
+    dtNascimento       DATE   NOT NULL,
+    dtFalecimento      DATE   NOT NULL,
     sexo               ENUM ('M',
         'F',
         'IGNORADO')           NOT NULL DEFAULT 'IGNORADO',
@@ -87,45 +85,28 @@ CREATE TABLE PESSOA_FALECIDA
         'SEPARADO',
         'UNIAO_CONSENSUAL',
         'IGNORADO')           NOT NULL DEFAULT 'IGNORADO',
-    escolaridade       ENUM ('NENHUMA',
-        'DE_1_A_3_ANOS',
-        'DE_4_A_7_ANOS',
-        'DE_8_A_11_ANOS',
-        '12_ANOS_E_MAIS',
-        'IGNORADO' )          NOT NULL DEFAULT 'IGNORADO',
+    escolaridade       ENUM (
+        'NENHUMA',
+        'FUND_I_INC',
+        'FUND_I_COMP',
+        'FUND_II_INC',
+        'FUND_II_COMP',
+        'MEDIO_INC',
+        'MEDIO_COMP',
+        'SUPERIOR_INC',
+        'SUPERIOR_COMP',
+        'IGNORADO')       NOT NULL DEFAULT 'IGNORADO',
+    naturalidade       INT,
+    codMunResidencia   INT,
+    codMunNaturalidade INT,
     CONSTRAINT pessoa_falecida_pk PRIMARY KEY (idPessoaFalecida),
     CONSTRAINT pessoa_falecida__obito_fk FOREIGN KEY (idObito) REFERENCES OBITO (idObito),
     CONSTRAINT pessoa_falecida_sistema__obito_uk UNIQUE (idObito)
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 1;
--- --8<-- [end: pessoa_falecida]
--- --8<-- [start: obito]
-CREATE TABLE OBITO
-(
-    -- Campo CONTADOR ou CONTADOR.1 nos dados originais
-    idObito               BIGINT      NOT NULL,
-    idDiagnostico         BIGINT      NOT NULL,
-    causaBasica           VARCHAR(10) NOT NULL,
-    dataHora              TIMESTAMP   NOT NULL,
-    circunstancia         ENUM ('ACIDENTE',
-        'SUICIDIO',
-        'HOMICIO',
-        'OUTROS',
-        'IGNORADO')                   NOT NULL DEFAULT 'IGNORADO',
-    isObitoFetal          BOOLEAN     NOT NULL DEFAULT FALSE,
-    houveAlteracaoCausa   BOOLEAN     NOT NULL DEFAULT FALSE,
-    obitoEmRelacaoAoParto ENUM ('ANTES',
-        'DURANTE',
-        'DEPOIS',
-        'IGNORADO' )                  NOT NULL DEFAULT 'IGNORADO',
-    crmAtestante          VARCHAR(10) NOT NULL,
-    CONSTRAINT obito_pf PRIMARY KEY (idObito),
-    CONSTRAINT obito_cid10_fk FOREIGN KEY (causaBasica) REFERENCES CID10 (codigo),
-    CONSTRAINT obito_diagnostico_fk FOREIGN KEY (idDiagnostico) REFERENCES DIAGNOSTICO (idDiagnostico)
 
-) ENGINE = InnoDB;
 
-CREATE TABLE causa_secundaria_morte
+CREATE TABLE tem_causas_secundarias_por
 (
     idObito BIGINT      NOT NULL,
     codCid  VARCHAR(10) NOT NULL,
@@ -137,14 +118,17 @@ CREATE TABLE causa_secundaria_morte
 
 CREATE TABLE DIAGNOSTICO
 (
-    idDiagnostico      BIGINT AUTO_INCREMENT,
-    diagnosticoLinhaA  VARCHAR(20) NOT NULL,
-    diagnosticoLinhaB  VARCHAR(20),
-    diagnosticoLinhaC  VARCHAR(20),
-    diagnosticoLinhaD  VARCHAR(20),
-    diagnosticoLinhaII VARCHAR(40),
-    CONSTRAINT diagnostico_pk PRIMARY KEY (idDiagnostico)
+    idDiagnostico BIGINT AUTO_INCREMENT,
+    idObito       BIGINT      NOT NULL,
+    linhaA        VARCHAR(20) NOT NULL,
+    linhaB        VARCHAR(20),
+    linhaC        VARCHAR(20),
+    linhaD        VARCHAR(20),
+    linhaII       VARCHAR(40),
+    CONSTRAINT diagnostico_pk PRIMARY KEY (idDiagnostico),
+    CONSTRAINT diagnostico_obito_fk FOREIGN KEY (idOBito) REFERENCES OBITO (idOBito)
+
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 1;
--- --8<-- [end: obito]
+
 
