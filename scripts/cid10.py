@@ -17,14 +17,17 @@ class PyStreamCallback(StreamCallback):
 
         # O conteúdo textual é decodificado como json, por meio do
         # pacote json do python.
-        json_content = json.JSONDecoder().decode(text)
+        jc = json.JSONDecoder().decode(text)
 
         # Um objeto cid é inicializado, e nele serão inseridas apenas
         # as propriedades necessárias.
+
         cid = {}
 
-        cid['codigo'] = json_content['CAT']
-        cid['descricao'] = json_content['DESCRICAO']
+        # Valida os tamanhos das strings.
+        if len(jc['CAT']) <= 10 and len(jc['DESCRICAO']) <= 100:
+            cid['codigo'] = jc['CAT']
+            cid['descricao'] = jc['DESCRICAO']
 
         # O conteúdo é serializado para JSON.
         content = json.dumps(cid)

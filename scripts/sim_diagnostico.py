@@ -2,35 +2,20 @@ from org.apache.commons.io import IOUtils
 from java.nio.charset import StandardCharsets
 from org.apache.nifi.processor.io import StreamCallback
 import json
+import datetime
+from datetime import datetime
+from json import JSONEncoder
 
-# Essa classe herda a classe StreamCallback, do apache/nifi.
 
-# Função para converter o código armazenado no sistema para
-# um ENUM correspondente.
+def format_linha(linha):
+    if linha:
+        return linha.replace('*', '')
+    return None
 
 
 class PyStreamCallback(StreamCallback):
     def __init__(self):
         pass
-
-    def formatorigem(self, cod):
-
-        origens = {
-            1: 'ORACLE',
-            2: 'BANCO ESTADUAL',
-            3: 'BANCO SEADE',
-            9: 'IGNORADO'
-        }
-
-        if cod == "":
-            return 'IGNORADO'
-        try:
-            origem = origens[int(cod)]
-        except Exception as e:
-            origem = cod
-            print(e)
-
-        return origem
 
     def process(self, inputStream, outputStream):
         # O conteúdo do arquivo (FlowFile) é lido do inputStream e
@@ -38,16 +23,19 @@ class PyStreamCallback(StreamCallback):
         text = IOUtils.toString(inputStream, StandardCharsets.UTF_8)
         # O conteúdo textual é decodificado como json, por meio do
         # pacote json do python.
-        json_content = json.JSONDecoder().decode(text)
-        # Um objeto metadados é inicializado, e nele serão inseridas apenas
-        # as propriedades necessárias.
-        metadados = {}
-        metadados['idObito'] = json_content['CONTADOR']
-        metadados['origemDados'] = self.formatorigem(json_content['ORIGEM'])
-        metadados['formCodificado'] = (json_content['CODIFICADO'] == 'S')
-        metadados['versaoSistema'] = json_content['VERSAOSIST']
+        jc = json.JSONDecoder().decode(text)
+
+        d = {}
+
+        d['idObito'] = jc['CONTADOR']
+        d['linhaA'] = format_linha(jc['LINHAA'])
+        d['linhaB'] = format_linha(jc['LINHAB'])
+        d['linhaC'] = format_linha(jc['LINHAC'])
+        d['linhaD'] = format_linha(jc['LINHAD'])
+        d['linhaII'] = format_linha(jc['LINHAII'])
+
         # O conteúdo é serializado para JSON.
-        content = json.dumps(metadados)
+        content = json.dumps(d, cls=DateTimeEncoder)
 
         # E por fim, o conteúdo é escrito novamente no arquivo,
         # fazendo a sobrescrita.

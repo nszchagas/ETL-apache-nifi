@@ -12,18 +12,27 @@ from json import JSONEncoder
 # um ENUM correspondente.
 
 
+def format_timestamp(data, time="0000"):
 
+    if not (time == "" or time == None or time == "null" or time == "None"):
+        h = int(time[0:2])
+        m = int(time[2:])
+    else:
+        h = '00'
+        m = '00'
+    # data = data + datetime.timedelta(hours=hours, minutes=minutes)
+    return '{0} {1}:{2}:00'.format(data, str(h).zfill(2), str(m).zfill(2))
 
 
 def format_date(date):
     date = str(date)
     if date == "" or date == None or date == "null" or date == "None":
         return None
-    
+
     d = date[0:2]
     m = date[2:4]
     y = date[4:]
-    
+
     return '{0}-{1}-{2}'.format(y, m, d)
 
 
@@ -33,12 +42,19 @@ def format_enum(opcoes, cod):
     try:
         opcao = opcoes[int(cod)]
     except Exception:
-        try: 
+        try:
             opcao = opcoes[cod]
         except Exception:
             opcao = cod
-            
+
     return opcao
+
+
+def format_linha(linha):
+    if linha:
+        return linha.replace('*', '')
+    return None
+
 
 class DateTimeEncoder(JSONEncoder):
     # Override the default method
@@ -52,11 +68,6 @@ class PyStreamCallback(StreamCallback):
         pass
 
     def process(self, inputStream, outputStream):
-        # Opções para os enums
-        fonte_opcoes = { '1':'ComiteDeMorteMaternaOuInfantil' , '2':'VisitaDomiciliar' , '3':'Prontuario' , '4':'RelacionadoComOutrosBancosDeDados' , '5':'SVO' , '6':'IML' , '7':'OutraFonte' , '8':'MultiplasFontes' , '9':'Ignorado' }
-        
-        nivel_inv_opcoes = {'E': 'ESTADUAL','R': 'REGIONAL', 'M': 'MUNICIPAL'}
-        tipo_resgate_opcoes = {1: 'NAO_ACRESCENTOU', 2: 'SIM_NOVAS_INFORMACOES', 3: 'SIM_CORRECAO_CAUSAS'}
         # O conteúdo do arquivo (FlowFile) é lido do inputStream e
         # decodificado em utf-8.
         text = IOUtils.toString(inputStream, StandardCharsets.UTF_8)
@@ -65,23 +76,18 @@ class PyStreamCallback(StreamCallback):
         jc = json.JSONDecoder().decode(text)
         # Um objeto metadados é inicializado, e nele serão inseridas apenas
         # as propriedades necessárias.
-        
-        
-        inv = {}
-                
-        inv['idObito'] = jc['CONTADOR']
-        
-        # Formatando as datas: 
-        
-        inv['dtInicio']  =   format_date(jc['DTINVESTIG'])
-        inv['dtCadastro'] =  format_date(jc['DTCADINV'])
-        inv['dtConclusao'] = format_date(jc['DTCONINV'])
 
-        inv['fonteInvestigacao'] = format_enum(fonte_opcoes, jc['FONTEINV'])
-        inv['nivelInvestigador'] = format_enum(nivel_inv_opcoes, jc['TPNIVELINV'])
-        inv['tipoResgateInformacao'] = format_enum(tipo_resgate_opcoes, jc['TPRESGINFO'])                
+        d = []
+        id_obito = jc['CONTADOR']
+        cids = jc['ATESTADO'].replace('/', ', ')
+        for cid in cids:
+            d.append({
+                'idObito': id_obito,
+                'codCid': cid
+            })
+
         # O conteúdo é serializado para JSON.
-        content = json.dumps(inv, cls=DateTimeEncoder)
+        content = json.dumps(d, cls=DateTimeEncoder)
 
         # E por fim, o conteúdo é escrito novamente no arquivo,
         # fazendo a sobrescrita.
