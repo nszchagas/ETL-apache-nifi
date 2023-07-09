@@ -12,32 +12,8 @@ from json import JSONEncoder
 # um ENUM correspondente.
 
 
-def format_timestamp(data, time="0000"):
-
-    if not (time == "" or time == None or time == "null" or time == "None"):
-        h = int(time[0:2])
-        m = int(time[2:])
-    else:
-        h = '00'
-        m = '00'
-    # data = data + datetime.timedelta(hours=hours, minutes=minutes)
-    return '{0} {1}:{2}:00'.format(data, str(h).zfill(2), str(m).zfill(2))
-
-
-def format_date(date):
-    date = str(date)
-    if date == "" or date == None or date == "null" or date == "None":
-        return None
-
-    d = date[0:2]
-    m = date[2:4]
-    y = date[4:]
-
-    return '{0}-{1}-{2}'.format(y, m, d)
-
-
 def format_enum(opcoes, cod):
-    if cod == "":
+    if cod == "" or cod == "null" or cod == None:
         return 'IGNORADO'
     try:
         opcao = opcoes[int(cod)]
@@ -50,11 +26,27 @@ def format_enum(opcoes, cod):
     return opcao
 
 
-class DateTimeEncoder(JSONEncoder):
-    # Override the default method
-    def default(self, obj):
-        if isinstance(obj, (datetime.date, datetime.datetime)):
-            return obj.isoformat()
+def format_timestamp(date, time="0000"):
+
+    date = str(date)
+    if date == "" or date == None or date == "null" or date == "None":
+        return None
+
+    d = int(date[0:2])
+    m = int(date[2:4])
+    y = int(date[4:])
+
+    if not (time == "" or time == None or time == "null" or time == "None"):
+        h = int(time[0:2])
+        mins = int(time[2:])
+    else:
+        h = 0
+        mins = 0
+    s = 0
+    data = datetime(y, m, d, h, mins, s)
+
+    return data.strftime("%Y-%m-%d %H:%M:%S.000")
+    # return int(data.timestamp())
 
 
 class PyStreamCallback(StreamCallback):
@@ -80,14 +72,10 @@ class PyStreamCallback(StreamCallback):
         jc = json.JSONDecoder().decode(text)
         # Um objeto metadados é inicializado, e nele serão inseridas apenas
         # as propriedades necessárias.
-        date_keys = ['DTOBITO']
-
-        for dk in date_keys:
-            jc[dk] = format_date(jc[dk])
 
         d = {}
 
-        d['idObito'] = jc['CONTADOR']
+        d['idObito'] = jc['contador']
         d['dataHora'] = format_timestamp(
             jc['DTOBITO'], jc['HORAOBITO'])
         d['circunstancia'] = format_enum(circunstancia, jc['CIRCOBITO'])
@@ -98,8 +86,10 @@ class PyStreamCallback(StreamCallback):
         d['crmAtestante'] = jc['ATESTANTE']
         d['causaBasica'] = jc['CAUSABAS']
 
+        # Não nulos sem default: idObito, causaBasica, dataHora
+
         # O conteúdo é serializado para JSON.
-        content = json.dumps(d, cls=DateTimeEncoder)
+        content = json.dumps(d)
 
         # E por fim, o conteúdo é escrito novamente no arquivo,
         # fazendo a sobrescrita.

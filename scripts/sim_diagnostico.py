@@ -27,7 +27,7 @@ class PyStreamCallback(StreamCallback):
 
         d = {}
 
-        d['idObito'] = jc['CONTADOR']
+        d['idObito'] = jc['contador']
         d['linhaA'] = format_linha(jc['LINHAA'])
         d['linhaB'] = format_linha(jc['LINHAB'])
         d['linhaC'] = format_linha(jc['LINHAC'])

@@ -25,9 +25,11 @@ class PyStreamCallback(StreamCallback):
         cid = {}
 
         # Valida os tamanhos das strings.
-        if len(jc['CAT']) <= 10 and len(jc['DESCRICAO']) <= 100:
-            cid['codigo'] = jc['CAT']
+        try:
+            cid['codigo'] = jc['SUBCAT']
             cid['descricao'] = jc['DESCRICAO']
+        except KeyError:
+            cid = jc
 
         # O conteúdo é serializado para JSON.
         content = json.dumps(cid)

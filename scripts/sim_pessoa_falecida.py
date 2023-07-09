@@ -4,21 +4,22 @@ from org.apache.nifi.processor.io import StreamCallback
 import json
 
 
-
 # Função para converter o código armazenado no sistema para
 # um ENUM correspondente.
 
 
 def format_enum(opcoes, cod):
-    if cod == "":
+    if cod == "" or cod == "null" or cod == None:
         return 'IGNORADO'
     try:
         opcao = opcoes[int(cod)]
-    except Exception as e:
-        opcao = cod
-    return opcao
+    except Exception:
+        try:
+            opcao = opcoes[cod]
+        except Exception:
+            opcao = cod
 
-# Formata datas para o formato aceito no mysql.
+    return opcao
 
 
 def format_date(date):
@@ -26,11 +27,12 @@ def format_date(date):
     if date == "" or date == None or date == "null" or date == "None":
         return None
 
-    d = date[0:2]
-    m = date[2:4]
-    y = date[4:]
+    d = int(date[0:2])
+    m = int(date[2:4])
+    y = int(date[4:])
+    data = datetime(y, m, d)
 
-    return '{0}-{1}-{2}'.format(y, m, d)
+    return data.strftime("%Y-%m-%d %H:%M:%S.000")
 
 
 def format_escolaridade(dados):
@@ -59,15 +61,6 @@ class DateTimeEncoder(JSONEncoder):
         if isinstance(obj, (datetime.date, datetime.datetime)):
             return obj.isoformat()
 
-# É valido se ao menos uma das chaves não for nula.
-
-
-def is_objeto_valido(objeto, chaves):
-    for c in chaves:
-        if (object[c] is not None):
-            return True
-    return False
-
 
 class PyStreamCallback(StreamCallback):
     def __init__(self):
@@ -93,7 +86,7 @@ class PyStreamCallback(StreamCallback):
         estado_civil = {1: 'SOLTEIRO', 2: 'CASADO', 3: 'VIUVO',
                         4: 'SEPARADO', 5: 'UNIAO_CONSENSUAL', 9: 'IGNORADO'}
 
-        d['idObito'] = jc['CONTADOR']
+        d['idObito'] = jc['contador']
         d['naturalidade'] = jc['NATURAL']
         d['codMunResidencia'] = jc['CODMUNRES']
         d['codMunNaturalidade'] = jc['CODMUNNATU']

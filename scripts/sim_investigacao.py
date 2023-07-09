@@ -10,15 +10,17 @@ from json import JSONEncoder
 # Função para converter o código armazenado no sistema para
 # um ENUM correspondente.
 def format_enum(opcoes, cod):
-    if cod == "":
-        return 'IGNORADO'
+    if cod == "" or cod == "null" or cod == None:
+        return None
     try:
         opcao = opcoes[int(cod)]
-    except Exception as e:
-        opcao = cod
-    return opcao
+    except Exception:
+        try:
+            opcao = opcoes[cod]
+        except Exception:
+            opcao = cod
 
-# Formata datas para o formato aceito no mysql.
+    return opcao
 
 
 def format_date(date):
@@ -26,18 +28,13 @@ def format_date(date):
     if date == "" or date == None or date == "null" or date == "None":
         return None
 
-    d = date[0:2]
-    m = date[2:4]
-    y = date[4:]
+    d = int(date[0:2])
+    m = int(date[2:4])
+    y = int(date[4:])
+    data = datetime(y, m, d)
 
-    return '{0}-{1}-{2}'.format(y, m, d)
+    return data.strftime("%Y-%m-%d %H:%M:%S.000")
 
-
-class DateTimeEncoder(JSONEncoder):
-    # Override the default method
-    def default(self, obj):
-        if isinstance(obj, (datetime.date, datetime.datetime)):
-            return obj.isoformat()
 
 # É valido se ao menos uma das chaves não for nula.
 
@@ -96,7 +93,7 @@ class PyStreamCallback(StreamCallback):
         # Dados formatados
         d = {}
 
-        d['idObito'] = jc['CONTADOR']
+        d['idObito'] = jc['contador']
         d['fonteInvestigacao'] = format_enum(
             fonte_investigacao, jc['FONTEINV'])
         d['tipoResgateInformacao'] = format_enum(
@@ -114,11 +111,12 @@ class PyStreamCallback(StreamCallback):
         is_objeto_valido(d, chaves)
 
         # O conteúdo é serializado para JSON.
-        content = json.dumps(d, cls=DateTimeEncoder)
+        content = json.dumps(d)
 
         # E por fim, o conteúdo é escrito novamente no arquivo,
         # fazendo a sobrescrita.
-        outputStream.write(bytearray(content.encode('utf-8')))
+        if is_objeto_valido:
+            outputStream.write(bytearray(content.encode('utf-8')))
 
 
 flowFile = session.get()
