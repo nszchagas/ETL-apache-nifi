@@ -1,0 +1,3 @@
+docker cp mysql_scripts/fisico.sql mysql:/tmp/
+docker cp mysql_scripts/apaga.sql mysql:/tmp/
+docker exec -it mysql bash

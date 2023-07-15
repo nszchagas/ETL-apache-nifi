@@ -1,4 +1,3 @@
-<meta name="google-site-verification" content="ZCpG_FfV6aio_o2uW9yi2mK9dfCiobPYO0b2NWocM_Y" />
 
 # Apache Nifi
 
@@ -122,6 +121,8 @@ Após o processamento, cada arquivo encontra-se no seguinte estado, estando pron
 O processador responsável pela conversão de JSON para SQL é o **ConvertJSONtoSQL**, como o próprio nome sugere, que necessita de uma **JDBC Connection Pool** para funcionar, portanto é necessário criá-la junto com os serviços de leitura e escrito criados anteriormente.
 
 ![](assets/2352.png)
+
+<!-- jdbc:mysql://mysql:3306/sim_datasus -->
 
 > A senha para o usuário apache também deve ser inserida, não aparecendo na imagem por ser um dado sensível.
 > O usuário apache também deve ser criado no banco de dados, caso não existe, e ter acesso aos objetos da base `sim_datasus`.

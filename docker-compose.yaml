@@ -8,8 +8,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 3GB
+          cpus: '0.8'
+          memory: 4GB
     restart: unless-stopped
     ports:
       - "8443:8443"
